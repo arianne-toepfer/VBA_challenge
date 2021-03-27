@@ -1,0 +1,104 @@
+Sub stock():
+
+' Set variables
+Dim Ticker As String
+Dim Change As Double
+Dim Percent As Double
+Dim TotalStock As Long
+Dim ChangeOpen As Double
+Dim ChangeClose As Double
+
+
+
+  
+TotalStock = 0
+  
+' Loop through all the sheets
+
+For Each ws In Worksheets
+
+' Determine the Last Row and last column
+
+LastRow = ws.Cells(Rows.Count, 2).End(xlUp).Row
+LastColumn = ws.Cells(1, Columns.Count).End(xlUp).Column
+
+'label the Summary Table
+ws.Cells(1, 9).Value = "Ticker"
+ws.Cells(1, 10).Value = "Yearly Change"
+ws.Cells(1, 11).Value = "Percent Chart"
+ws.Cells(1, 12).Value = "Total Stock Volume"
+
+
+
+' Keep track of the location for each ticker type in the summary table
+  Dim Summary_Table_Row As Integer
+  Summary_Table_Row = 2
+
+  ' Loop through all the tickers
+    For i = 2 To LastRow
+
+    ' Check if we are still within the same ticker type, if it is not...
+        If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+        
+        
+          ' Set the Ticker Type
+            Ticker = ws.Cells(i, 1).Value
+    
+          'set yearly change
+            ChangeOpen = ws.Cells(i, 3).Value
+            ChangeClose = ws.Cells(i, 6).Value
+            
+            Change = ChangeOpen - ChangeClose
+            
+            'set color conditions
+            If Change < 0 Then
+                ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+            Else
+               ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+            End If
+            
+          
+          'set Percent Chart check for zero values
+            If ChangeOpen = 0 Then
+                Percent = 0
+            Else
+            
+                ChangeOpen = ws.Cells(i, 3).Value
+                ChangeClose = ws.Cells(i, 6).Value
+            
+                Percent = (Change / ChangeOpen) * 100
+            End If
+            
+          
+          ' Add to the Total stock volume
+            TotalStock = TotalStock + ws.Cells(i, 7).Value
+    
+          ' Print the Ticker Type in the Summary Table
+            ws.Range("I" & Summary_Table_Row).Value = Ticker
+            
+           'Print the Yearly Change in the Summary Table
+            ws.Range("J" & Summary_Table_Row).Value = Change
+            
+          'Print the Percent Chart
+            ws.Range("K" & Summary_Table_Row).Value = Percent
+            
+          ' Print the total stock volume to the Summary Table
+            ws.Range("L" & Summary_Table_Row).Value = TotalStock
+    
+          ' Add one to the summary table row
+            Summary_Table_Row = Summary_Table_Row + 1
+          
+          ' Reset
+            TotalStock = 0
+            
+
+        Else
+
+        End If
+
+    Next i
+  ' Add to the total stock volume
+      TotalStock = TotalStock + ws.Cells(i, 3).Value
+  Next ws
+
+End Sub
